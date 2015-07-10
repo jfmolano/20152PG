@@ -13,6 +13,7 @@ import android.widget.Toast;
 import android.location.Location;
 import android.content.Context;
 import android.location.LocationManager;
+import android.text.format.Formatter;
 
 public class MainActivity extends Activity {
 
@@ -61,21 +62,19 @@ public class MainActivity extends Activity {
         System.out.println("- - - - - ID de Net - - - - -");
         System.out.println(netIdString);
         System.out.println("- - - - - dns1 - - - - -");
-        System.out.println(dns1);
+        System.out.println( intToIp(dns1));
         System.out.println("- - - - - dns2 - - - - -");
-        System.out.println(dns2);
+        System.out.println( intToIp(dns2));
         System.out.println("- - - - - gateway - - - - -");
-        System.out.println(gateway);
+        System.out.println( intToIp(gateway));
         System.out.println("- - - - - ipdhcp - - - - -");
-        System.out.println(ipdhcp);
-        System.out.println("- - - - - ipdhcp - - - - -");
-        System.out.println(ipdhcp);
+        System.out.println( intToIp(ipdhcp));
         System.out.println("- - - - - leaseduration - - - - -");
         System.out.println(leaseduration);
         System.out.println("- - - - - netmask - - - - -");
-        System.out.println(netmask);
+        System.out.println( intToIp(netmask));
         System.out.println("- - - - - servaddress - - - - -");
-        System.out.println(servaddress);
+        System.out.println( intToIp(servaddress));
         //GPS
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         System.out.println("GPS");
@@ -101,6 +100,16 @@ public class MainActivity extends Activity {
                 System.out.println(latitud);
             }
         }
+    }
+
+    public String intToIp(int IpAddress) {
+        /*
+        return ((i >> 24 ) & 0xFF ) + "." +
+                ((i >> 16 ) & 0xFF) + "." +
+                ((i >> 8 ) & 0xFF) + "." +
+                ( i & 0xFF) ;
+                   */
+        return Formatter.formatIpAddress(IpAddress);
     }
 
     public void addListenerOnButton() {
