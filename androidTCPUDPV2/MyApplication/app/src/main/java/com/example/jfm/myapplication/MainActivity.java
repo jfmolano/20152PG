@@ -2,6 +2,7 @@ package com.example.jfm.myapplication;
 
 import android.app.Activity;
 import android.net.wifi.WifiInfo;
+import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.format.Formatter;
@@ -19,6 +20,7 @@ public class MainActivity extends Activity {
     private LocationManager locationManager;
     private WifiManager wifiMgr;
     private WifiInfo wifiInfo;
+    private DhcpInfo dhcpInfo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,11 +40,26 @@ public class MainActivity extends Activity {
     {
         //WIFI
         wifiInfo = wifiMgr.getConnectionInfo();
+        dhcpInfo = wifiMgr.getDhcpInfo();
         int ip = wifiInfo.getIpAddress();
         String mac = wifiInfo.getMacAddress();
         int netId = wifiInfo.getNetworkId();
+        int dns1 = dhcpInfo.dns1;
+        int dns2 = dhcpInfo.dns2;
+        int contents = dhcpInfo.describeContents();
+        int gateway = dhcpInfo.gateway;
+        int ipdhcp = dhcpInfo.ipAddress;
+        int leaseduration = dhcpInfo.leaseDuration;
+        int netmask = dhcpInfo.netmask;
+        int servaddress = dhcpInfo.serverAddress;
         String ipAddress = Formatter.formatIpAddress(ip);
         String netIdString = Formatter.formatIpAddress(netId);
+        System.out.println("- - - - - IP - - - - -");
+        System.out.println(ipAddress);
+        System.out.println("- - - - - MAC - - - - -");
+        System.out.println(mac);
+        System.out.println("- - - - - ID de Net - - - - -");
+        System.out.println(netIdString);
         System.out.println("- - - - - IP - - - - -");
         System.out.println(ipAddress);
         System.out.println("- - - - - MAC - - - - -");
