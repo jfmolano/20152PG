@@ -60,12 +60,22 @@ public class MainActivity extends Activity {
         System.out.println(mac);
         System.out.println("- - - - - ID de Net - - - - -");
         System.out.println(netIdString);
-        System.out.println("- - - - - IP - - - - -");
-        System.out.println(ipAddress);
-        System.out.println("- - - - - MAC - - - - -");
-        System.out.println(mac);
-        System.out.println("- - - - - ID de Net - - - - -");
-        System.out.println(netIdString);
+        System.out.println("- - - - - dns1 - - - - -");
+        System.out.println(dns1);
+        System.out.println("- - - - - dns2 - - - - -");
+        System.out.println(dns2);
+        System.out.println("- - - - - gateway - - - - -");
+        System.out.println(gateway);
+        System.out.println("- - - - - ipdhcp - - - - -");
+        System.out.println(ipdhcp);
+        System.out.println("- - - - - ipdhcp - - - - -");
+        System.out.println(ipdhcp);
+        System.out.println("- - - - - leaseduration - - - - -");
+        System.out.println(leaseduration);
+        System.out.println("- - - - - netmask - - - - -");
+        System.out.println(netmask);
+        System.out.println("- - - - - servaddress - - - - -");
+        System.out.println(servaddress);
         //GPS
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         System.out.println("GPS");
