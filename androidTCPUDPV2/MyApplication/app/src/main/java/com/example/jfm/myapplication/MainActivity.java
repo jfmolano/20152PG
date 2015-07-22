@@ -34,6 +34,8 @@ import org.json.JSONObject;
 
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 public class MainActivity extends Activity {
@@ -80,6 +82,9 @@ public class MainActivity extends Activity {
         //Texto de entrada para prueba
         nombreSalon = (EditText)findViewById(R.id.nombreSalon);
         String salon = nombreSalon.getText().toString();
+        //HORA
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss z");
         //RUIDO
         //WIFI
         wifiInfo = wifiMgr.getConnectionInfo();
@@ -95,6 +100,7 @@ public class MainActivity extends Activity {
         int leaseduration = dhcpInfo.leaseDuration;
         int netmask = dhcpInfo.netmask;
         int servaddress = dhcpInfo.serverAddress;
+        String macAP = wifiInfo.getBSSID();
         String ipAddress = Formatter.formatIpAddress(ip);
         String netIdString = Formatter.formatIpAddress(netId);
         System.out.println("- - - - - IP - - - - -");
@@ -116,9 +122,12 @@ public class MainActivity extends Activity {
         System.out.println("- - - - - netmask - - - - -");
         System.out.println( intToIp(netmask));
         System.out.println("- - - - - servaddress - - - - -");
-        System.out.println( intToIp(servaddress));
-        //POST
-        makeHTTPPOSTRequest(salon,intToIp(gateway),intToIp(netmask));
+        System.out.println(intToIp(servaddress));
+        String hora = sdf.format(cal.getTime());
+        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora);
         //GPS
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         System.out.println("GPS");
@@ -177,8 +186,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(MainActivity.this,
-                        "En click", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"En click", Toast.LENGTH_SHORT).show();
 
                 new Thread(new Runnable() {
                     public void run() {
@@ -223,7 +231,7 @@ public class MainActivity extends Activity {
 
     }
 
-    public void makeHTTPPOSTRequest(String salon, String ipAP, String netmask) {
+    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora) {
         try {
             String urlPost = "http://157.253.195.165:5000/api/marcas";
             HttpClient c = new DefaultHttpClient();
@@ -241,17 +249,17 @@ public class MainActivity extends Activity {
                     "\"humedad\":\"30\"," +
                     "\"grupo\":\"201113844\"," +
                     "\"infoAdd\":\"-\"}";
-            String jsonPost2 = "{\"codigo\":\"201116404\"," +
-                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
+            String jsonPost2 = "{\"codigo\":\".\"," +
+                    "\"tiempo\":\""+hora+"\"," +
                     "\"lugar\":\""+salon+"\"," +
-                    "\"ip\":\"157.253.0.3\"," +
+                    "\"ip\":\""+ip+"\"," +
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
-                    "\"ruido\":\"1\"," +
-                    "\"luz\":\"2\"," +
-                    "\"musica\":\"JBalvin\"," +
-                    "\"temperatura\":\"20\"," +
-                    "\"humedad\":\"30\"," +
-                    "\"grupo\":\"201113844\"," +
+                    "\"ruido\":\".\"," +
+                    "\"luz\":\".\"," +
+                    "\"musica\":\".\"," +
+                    "\"temperatura\":\".\"," +
+                    "\"humedad\":\".\"," +
+                    "\"grupo\":\""+macAP+"\"," +
                     "\"infoAdd\":\""+netmask+"\"}";
             System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
             System.out.println(jsonPost1);
@@ -265,12 +273,37 @@ public class MainActivity extends Activity {
             while ((line = rd.readLine()) != null) {
                 System.out.println(line);
             }
+
+            // TOAST
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "Conexion exitosa", Toast.LENGTH_LONG).show();
+                }
+            });
+
+            // TOAST
+
         }
         catch(ParseException e) {
             System.out.println(e);
         }
         catch(IOException e) {
             System.out.println(e);
+
+            // TOAST
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "ERROR de conexion", Toast.LENGTH_LONG).show();
+                }
+            });
+
+            // TOAST
         }
     }
+
+
 }
