@@ -1,6 +1,7 @@
 package com.example.jfm.myapplication;
 
 import android.app.Activity;
+import android.content.SyncStatusObserver;
 import android.media.MediaRecorder;
 import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.location.Location;
@@ -37,6 +39,7 @@ import java.util.Map;
 public class MainActivity extends Activity {
 
     private Button btnInicio;
+    private EditText nombreSalon;
     private TextView textoRuido;
     private LocationManager locationManager;
     private WifiManager wifiMgr;
@@ -74,8 +77,9 @@ public class MainActivity extends Activity {
 
     public void medicion()
     {
-        //POST
-        makeHTTPPOSTRequest();
+        //Texto de entrada para prueba
+        nombreSalon = (EditText)findViewById(R.id.nombreSalon);
+        String salon = nombreSalon.getText().toString();
         //RUIDO
         //WIFI
         wifiInfo = wifiMgr.getConnectionInfo();
@@ -113,6 +117,8 @@ public class MainActivity extends Activity {
         System.out.println( intToIp(netmask));
         System.out.println("- - - - - servaddress - - - - -");
         System.out.println( intToIp(servaddress));
+        //POST
+        makeHTTPPOSTRequest(salon,intToIp(gateway),intToIp(netmask));
         //GPS
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         System.out.println("GPS");
@@ -217,13 +223,41 @@ public class MainActivity extends Activity {
 
     }
 
-    public void makeHTTPPOSTRequest() {
+    public void makeHTTPPOSTRequest(String salon, String ipAP, String netmask) {
         try {
             String urlPost = "http://157.253.195.165:5000/api/marcas";
             HttpClient c = new DefaultHttpClient();
             HttpPost p = new HttpPost(urlPost);
             p.addHeader("content-type", "application/json");
-            p.setEntity(new StringEntity("{\"codigo\":\"201116404\",\"tiempo\":\"11:04:00 15/07/2015\",\"lugar\":\"ML009\",\"ip\":\"157.253.0.3\",\"ipaccesspoint\":\"157.253.0.1\",\"ruido\":\"1\",\"luz\":\"2\",\"musica\":\"JBalvin\", \"temperatura\":\"20\",\"humedad\":\"30\",\"grupo\":\"201113844\",\"infoAdd\":\"-\"}"));
+            String jsonPost1 = "{\"codigo\":\"201116404\"," +
+                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
+                    "\"lugar\":\"ML009\"," +
+                    "\"ip\":\"157.253.0.3\"," +
+                    "\"ipaccesspoint\":\"157.253.0.1\"," +
+                    "\"ruido\":\"1\"," +
+                    "\"luz\":\"2\"," +
+                    "\"musica\":\"JBalvin\"," +
+                    "\"temperatura\":\"20\"," +
+                    "\"humedad\":\"30\"," +
+                    "\"grupo\":\"201113844\"," +
+                    "\"infoAdd\":\"-\"}";
+            String jsonPost2 = "{\"codigo\":\"201116404\"," +
+                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
+                    "\"lugar\":\""+salon+"\"," +
+                    "\"ip\":\"157.253.0.3\"," +
+                    "\"ipaccesspoint\":\""+ipAP+"\"," +
+                    "\"ruido\":\"1\"," +
+                    "\"luz\":\"2\"," +
+                    "\"musica\":\"JBalvin\"," +
+                    "\"temperatura\":\"20\"," +
+                    "\"humedad\":\"30\"," +
+                    "\"grupo\":\"201113844\"," +
+                    "\"infoAdd\":\""+netmask+"\"}";
+            System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
+            System.out.println(jsonPost1);
+            System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
+            System.out.println(jsonPost2);
+            p.setEntity(new StringEntity(jsonPost2));
             HttpResponse r = c.execute(p);
 
             BufferedReader rd = new BufferedReader(new InputStreamReader(r.getEntity().getContent()));
