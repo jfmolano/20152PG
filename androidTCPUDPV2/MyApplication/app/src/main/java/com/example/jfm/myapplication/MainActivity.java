@@ -212,7 +212,7 @@ public class MainActivity extends Activity {
                     "\"ip\":\""+ip+"\"," +
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
                     "\"ruido\":\""+ruidoString+"\"," +
-                    "\"luz\":\""+luzString+".\"," +
+                    "\"luz\":\""+luzString+"\"," +
                     "\"musica\":\".\"," +
                     "\"temperatura\":\".\"," +
                     "\"humedad\":\".\"," +
