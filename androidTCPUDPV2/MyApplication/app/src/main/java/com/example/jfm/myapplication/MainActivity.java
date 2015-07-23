@@ -33,6 +33,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MainActivity extends Activity {
+    //Constantes
+    private final static int ITERACIONES_RUIDO = 1;
+    private final static int T_INTERVALO_RUIDO = 1000;
     //Boton de comunicacion POST
     private Button btnPOST;
     private EditText nombreSalon;
@@ -56,7 +59,7 @@ public class MainActivity extends Activity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //Start audio
-        start();
+        //start();
 
         //Listener
         addListenerOnButton();
@@ -275,18 +278,20 @@ public class MainActivity extends Activity {
     public double darRuido()
     {
         try {
+            start();
             double ruido = 0;
             double ampMax;
             ampMax = getAmplitude();
-            for (int i = 0; i < 8; i++) {
-                Thread.sleep(2000);
+            for (int i = 0; i < ITERACIONES_RUIDO; i++) {
+                Thread.sleep(T_INTERVALO_RUIDO);
                 ampMax = getAmplitude();
                 ruido = (ruido*i+ampMax)/(i+1);
             }
+            stop();
             return ruido;
-        }
-        catch(Exception e)
+        } catch(Exception e)
         {
+            stop();
             return -1;
         }
     }
