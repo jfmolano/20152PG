@@ -1,6 +1,9 @@
 package com.example.jfm.myapplication;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaRecorder;
 import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
@@ -8,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -49,6 +53,18 @@ public class MainActivity extends Activity {
     private MediaRecorder mRecorder = null;
     //LUZ
     DataCollection mDataCollection = null;
+    //MUSICA
+    public static final String SERVICECMD = "com.android.music.musicservicecommand";
+    public static final String CMDNAME = "command";
+    public static final String CMDTOGGLEPAUSE = "togglepause";
+    public static final String CMDSTOP = "stop";
+    public static final String CMDPAUSE = "pause";
+    public static final String CMDPREVIOUS = "previous";
+    public static final String CMDNEXT = "next";
+    private String artista;
+    private String album;
+    private String pista;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +84,26 @@ public class MainActivity extends Activity {
         //Luz
         mDataCollection = new DataCollection(this);
 
+        //Musica
+        IntentFilter iF = new IntentFilter();
+        iF.addAction("com.android.music.metachanged");
+        iF.addAction("com.android.music.playstatechanged");
+        iF.addAction("com.android.music.playbackcomplete");
+        iF.addAction("com.android.music.queuechanged");
+        iF.addAction("com.android.music.metachanged");
+        //Nuevas lineas
+        iF.addAction("com.htc.music.metachanged");
+        iF.addAction("fm.last.android.metachanged");
+        iF.addAction("com.sec.android.app.music.metachanged");
+        iF.addAction("com.nullsoft.winamp.metachanged");
+        iF.addAction("com.amazon.mp3.metachanged");
+        iF.addAction("com.miui.player.metachanged");
+        iF.addAction("com.real.IMP.metachanged");
+        iF.addAction("com.sonyericsson.music.metachanged");
+        iF.addAction("com.rdio.android.metachanged");
+        iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
+        iF.addAction("com.andrew.apollo.metachanged");
+        registerReceiver(mReceiver, iF);
         //Listener
         addListenerOnButton();
     }
@@ -77,13 +113,13 @@ public class MainActivity extends Activity {
         // Metodo de prueba
 
         // TOAST=====
-        /*
+
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), "Nivel de luz: "+luz, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Cancion: "+pista, Toast.LENGTH_LONG).show();
             }
         });
-        */
+
         // TOAST=====
     }
 
@@ -314,6 +350,19 @@ public class MainActivity extends Activity {
         }
     }
 
+    //onReceive musica
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent)
+    {
+        String action = intent.getAction();
+        String cmd = intent.getStringExtra("command");
+        artista = intent.getStringExtra("artist");
+        album = intent.getStringExtra("album");
+        pista = intent.getStringExtra("track");
+    }
+};
+
     //Activar boton de medicion
     public void addListenerOnButton() {
         btnPOST = (Button) findViewById(R.id.btnDisplay);
@@ -325,9 +374,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        medicion();
+                        //medicion();
                         //Metodo de prueba
-                        //medicionTest();
+                        medicionTest();
                     }
                 }).start();
 
