@@ -15,7 +15,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
         android:id="@+id/textSonido" />
     <EditText android:id="@+id/nombreSalon" android:layout_width="400px" android:layout_height="wrap_content"/>
 </LinearLayout>

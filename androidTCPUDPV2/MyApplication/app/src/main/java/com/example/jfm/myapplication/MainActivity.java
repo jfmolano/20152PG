@@ -36,25 +36,12 @@ public class MainActivity extends Activity {
     //Boton de comunicacion POST
     private Button btnPOST;
     private EditText nombreSalon;
-    private TextView textoRuido;
     private LocationManager locationManager;
     private WifiManager wifiMgr;
     private WifiInfo wifiInfo;
     private DhcpInfo dhcpInfo;
     private MediaRecorder mRecorder = null;
-    private Handler handler;
-    private int num;
-
-    //Runnable para actualizar texto de ruido
-
-    /*Runnable runnable=new Runnable(){
-        @Override
-        public void run() {
-            textoRuido.setText("num "+num);
-            num++;
-            handler.postDelayed(runnable, 250);
-        }
-    };*/
+    private double amplitud;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,7 +49,6 @@ public class MainActivity extends Activity {
 
         //Interfaz
         setContentView(R.layout.activity_main);
-        textoRuido = (TextView) findViewById(R.id.textSonido);
 
         //Informacion WIFI
         wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -70,14 +56,39 @@ public class MainActivity extends Activity {
         //Informacion GPS
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        //Handler para indicador de ruido
+        //Start audio
+        start();
 
-        /*handler=new Handler();
-        //handler.post(runnable);*/
-
-        //Numero de conteo en el indicador de ruido
-        num = 0;
+        //Listener
         addListenerOnButton();
+    }
+
+    public void medicionTest()
+    {
+        try {
+            amplitud = getAmplitude();
+            // TOAST=====
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "Ruido 1: " + amplitud, Toast.LENGTH_LONG).show();
+                }
+            });
+            // TOAST=====
+            while(true){
+            Thread.sleep(5000);
+            amplitud = getAmplitude();
+            // TOAST=====
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "Ruido 2: "+amplitud, Toast.LENGTH_LONG).show();
+                }
+            });}
+            // TOAST=====
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void medicion()
@@ -166,27 +177,6 @@ public class MainActivity extends Activity {
     //Funcion para pasar numeros raros a direcciones IP STRINGs
     public String intToIp(int IpAddress) {
         return Formatter.formatIpAddress(IpAddress);
-    }
-
-    //Activar boton de medicion
-    public void addListenerOnButton() {
-        btnPOST = (Button) findViewById(R.id.btnDisplay);
-
-        btnPOST.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                new Thread(new Runnable() {
-                    public void run() {
-                        medicion();
-                    }
-                }).start();
-
-            }
-
-        });
-
     }
 
     public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora) {
@@ -291,6 +281,29 @@ public class MainActivity extends Activity {
             return  mRecorder.getMaxAmplitude();
         else
             return 0;
+
+    }
+
+    //Activar boton de medicion
+    public void addListenerOnButton() {
+        btnPOST = (Button) findViewById(R.id.btnDisplay);
+
+        btnPOST.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        //medicion();
+                        //Metodo de prueba
+                        medicionTest();
+                    }
+                }).start();
+
+            }
+
+        });
 
     }
 
