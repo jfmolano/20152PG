@@ -49,7 +49,6 @@ public class MainActivity extends Activity {
     private MediaRecorder mRecorder = null;
     //LUZ
     DataCollection mDataCollection = null;
-    private float luz;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,13 +75,15 @@ public class MainActivity extends Activity {
     public void medicionTest()
     {
         // Metodo de prueba
-        luz = mDataCollection.darLuzActual();
+
         // TOAST=====
+        /*
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(getApplicationContext(), "Nivel de luz: "+luz, Toast.LENGTH_LONG).show();
             }
         });
+        */
         // TOAST=====
     }
 
@@ -123,7 +124,8 @@ public class MainActivity extends Activity {
 
         //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        //TODO LUZ
+        float luz = mDataCollection.darLuzActual();
+        String luzStr = luz + "";
 
         //REDES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -177,7 +179,7 @@ public class MainActivity extends Activity {
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora,ruidoStr);
+        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora,ruidoStr,luzStr);
     }
 
     //Funcion para pasar numeros raros a direcciones IP STRINGs
@@ -185,7 +187,7 @@ public class MainActivity extends Activity {
         return Formatter.formatIpAddress(IpAddress);
     }
 
-    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString) {
+    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
         try {
             String urlPost = "http://157.253.195.165:5000/api/marcas";
             HttpClient c = new DefaultHttpClient();
@@ -210,7 +212,7 @@ public class MainActivity extends Activity {
                     "\"ip\":\""+ip+"\"," +
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
                     "\"ruido\":\""+ruidoString+"\"," +
-                    "\"luz\":\".\"," +
+                    "\"luz\":\""+luzString+".\"," +
                     "\"musica\":\".\"," +
                     "\"temperatura\":\".\"," +
                     "\"humedad\":\".\"," +
@@ -323,9 +325,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        //medicion();
+                        medicion();
                         //Metodo de prueba
-                        medicionTest();
+                        //medicionTest();
                     }
                 }).start();
 
