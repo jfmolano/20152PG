@@ -1,7 +1,6 @@
 package com.example.jfm.myapplication;
 
 import android.app.Activity;
-import android.content.SyncStatusObserver;
 import android.media.MediaRecorder;
 import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
@@ -9,7 +8,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,7 +17,7 @@ import android.widget.Toast;
 import android.location.Location;
 import android.content.Context;
 import android.location.LocationManager;
-import android.text.format.Formatter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,17 +28,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.HttpResponse;
-import org.json.JSONObject;
 
-
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Map;
 
 public class MainActivity extends Activity {
-
-    private Button btnInicio;
+    //Boton de comunicacion POST
+    private Button btnPOST;
     private EditText nombreSalon;
     private TextView textoRuido;
     private LocationManager locationManager;
@@ -50,6 +44,9 @@ public class MainActivity extends Activity {
     private MediaRecorder mRecorder = null;
     private Handler handler;
     private int num;
+
+    //Runnable para actualizar texto de ruido
+
     /*Runnable runnable=new Runnable(){
         @Override
         public void run() {
@@ -62,36 +59,68 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Interfaz
         setContentView(R.layout.activity_main);
+        textoRuido = (TextView) findViewById(R.id.textSonido);
+
         //Informacion WIFI
         wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
-        //wifiInfo = wifiMgr.getConnectionInfo();
-        //int ip = wifiInfo.getIpAddress();
-        //String ipAddress = Formatter.formatIpAddress(ip);
-        //Informacion WIFI
+
+        //Informacion GPS
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        textoRuido = (TextView) findViewById(R.id.textSonido);
+
+        //Handler para indicador de ruido
+
         /*handler=new Handler();
         //handler.post(runnable);*/
+
+        //Numero de conteo en el indicador de ruido
         num = 0;
         addListenerOnButton();
     }
 
     public void medicion()
     {
-        //Texto de entrada para prueba
+        //Texto de entrada para prueba tomado de campo de texto
         nombreSalon = (EditText)findViewById(R.id.nombreSalon);
         String salon = nombreSalon.getText().toString();
-        //HORA
+
+        //HORA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss z");
-        //RUIDO
-        //WIFI
+        String hora = sdf.format(cal.getTime());
+
+        //RUIDO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        //TODO RUIDOMETRO
+
+        //APPS ABIERTAS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        //TODO APPS ABIERTAS
+
+        //MUSICA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        //TODO MUSICA
+
+        //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        //TODO LUZ
+
+        //REDES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        //Manejadores
         wifiInfo = wifiMgr.getConnectionInfo();
         dhcpInfo = wifiMgr.getDhcpInfo();
+        //WIFI INFO
         int ip = wifiInfo.getIpAddress();
         String mac = wifiInfo.getMacAddress();
         int netId = wifiInfo.getNetworkId();
+        String macAP = wifiInfo.getBSSID();
+        String ipAddress = Formatter.formatIpAddress(ip);
+        String netIdString = Formatter.formatIpAddress(netId);
+        //DHCP INFO
         int dns1 = dhcpInfo.dns1;
         int dns2 = dhcpInfo.dns2;
         int contents = dhcpInfo.describeContents();
@@ -100,35 +129,9 @@ public class MainActivity extends Activity {
         int leaseduration = dhcpInfo.leaseDuration;
         int netmask = dhcpInfo.netmask;
         int servaddress = dhcpInfo.serverAddress;
-        String macAP = wifiInfo.getBSSID();
-        String ipAddress = Formatter.formatIpAddress(ip);
-        String netIdString = Formatter.formatIpAddress(netId);
-        System.out.println("- - - - - IP - - - - -");
-        System.out.println(ipAddress);
-        System.out.println("- - - - - MAC - - - - -");
-        System.out.println(mac);
-        System.out.println("- - - - - ID de Net - - - - -");
-        System.out.println(netIdString);
-        System.out.println("- - - - - dns1 - - - - -");
-        System.out.println( intToIp(dns1));
-        System.out.println("- - - - - dns2 - - - - -");
-        System.out.println( intToIp(dns2));
-        System.out.println("- - - - - gateway - - - - -");
-        System.out.println( intToIp(gateway));
-        System.out.println("- - - - - ipdhcp - - - - -");
-        System.out.println( intToIp(ipdhcp));
-        System.out.println("- - - - - leaseduration - - - - -");
-        System.out.println(leaseduration);
-        System.out.println("- - - - - netmask - - - - -");
-        System.out.println( intToIp(netmask));
-        System.out.println("- - - - - servaddress - - - - -");
-        System.out.println(intToIp(servaddress));
-        String hora = sdf.format(cal.getTime());
-        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //POST - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora);
-        //GPS
+
+        //GPS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         System.out.println("GPS");
         if(location!=null) {
@@ -154,39 +157,25 @@ public class MainActivity extends Activity {
             }
         }
 
-        //while(true)
-        //{
-        //try {
-        //    TextView tv1 = (TextView) findViewById(R.id.textSonido);
-        //    tv1.setText("Hello");
-        //}
-        //catch(Exception e)
-        //{
-        //    System.out.println("- - - - - - - Error - - - - - - - - -");
-        //    Log.i("RM", "error", e);
-        //}
-        //}
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora);
     }
 
+    //Funcion para pasar numeros raros a direcciones IP STRINGs
     public String intToIp(int IpAddress) {
-        /*
-        return ((i >> 24 ) & 0xFF ) + "." +
-                ((i >> 16 ) & 0xFF) + "." +
-                ((i >> 8 ) & 0xFF) + "." +
-                ( i & 0xFF) ;
-                   */
         return Formatter.formatIpAddress(IpAddress);
     }
 
+    //Activar boton de medicion
     public void addListenerOnButton() {
-        btnInicio = (Button) findViewById(R.id.btnDisplay);
+        btnPOST = (Button) findViewById(R.id.btnDisplay);
 
-        btnInicio.setOnClickListener(new OnClickListener() {
+        btnPOST.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-
-                //Toast.makeText(MainActivity.this,"En click", Toast.LENGTH_SHORT).show();
 
                 new Thread(new Runnable() {
                     public void run() {
@@ -199,6 +188,80 @@ public class MainActivity extends Activity {
         });
 
     }
+
+    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora) {
+        try {
+            String urlPost = "http://157.253.195.165:5000/api/marcas";
+            HttpClient c = new DefaultHttpClient();
+            HttpPost p = new HttpPost(urlPost);
+            p.addHeader("content-type", "application/json");
+            //JSON de PRUEBA
+            /*String jsonPost1 = "{\"codigo\":\"201116404\"," +
+                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
+                    "\"lugar\":\"ML009\"," +
+                    "\"ip\":\"157.253.0.3\"," +
+                    "\"ipaccesspoint\":\"157.253.0.1\"," +
+                    "\"ruido\":\"1\"," +
+                    "\"luz\":\"2\"," +
+                    "\"musica\":\"JBalvin\"," +
+                    "\"temperatura\":\"20\"," +
+                    "\"humedad\":\"30\"," +
+                    "\"grupo\":\"201113844\"," +
+                    "\"infoAdd\":\"-\"}";*/
+            String jsonPost = "{\"codigo\":\".\"," +
+                    "\"tiempo\":\""+hora+"\"," +
+                    "\"lugar\":\""+salon+"\"," +
+                    "\"ip\":\""+ip+"\"," +
+                    "\"ipaccesspoint\":\""+ipAP+"\"," +
+                    "\"ruido\":\".\"," +
+                    "\"luz\":\".\"," +
+                    "\"musica\":\".\"," +
+                    "\"temperatura\":\".\"," +
+                    "\"humedad\":\".\"," +
+                    "\"grupo\":\""+macAP+"\"," +
+                    "\"infoAdd\":\""+netmask+"\"}";
+            //IMPRIMIR PETICIONES REST
+            /*System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
+            System.out.println(jsonPost1);
+            System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
+            System.out.println(jsonPost);*/
+            p.setEntity(new StringEntity(jsonPost));
+            HttpResponse r = c.execute(p);
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(r.getEntity().getContent()));
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            // TOAST=====
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "Conexion exitosa", Toast.LENGTH_LONG).show();
+                }
+            });
+            // TOAST=====
+
+        }
+        catch(ParseException e) {
+            System.out.println(e);
+        }
+        catch(IOException e) {
+            System.out.println(e);
+
+            // TOAST=====
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "ERROR de conexion", Toast.LENGTH_LONG).show();
+                }
+            });
+            // TOAST=====
+        }
+    }
+
+    //FUNCIONES RUIDOMETRO
 
     public void start() {
         try{
@@ -231,79 +294,27 @@ public class MainActivity extends Activity {
 
     }
 
-    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora) {
-        try {
-            String urlPost = "http://157.253.195.165:5000/api/marcas";
-            HttpClient c = new DefaultHttpClient();
-            HttpPost p = new HttpPost(urlPost);
-            p.addHeader("content-type", "application/json");
-            String jsonPost1 = "{\"codigo\":\"201116404\"," +
-                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
-                    "\"lugar\":\"ML009\"," +
-                    "\"ip\":\"157.253.0.3\"," +
-                    "\"ipaccesspoint\":\"157.253.0.1\"," +
-                    "\"ruido\":\"1\"," +
-                    "\"luz\":\"2\"," +
-                    "\"musica\":\"JBalvin\"," +
-                    "\"temperatura\":\"20\"," +
-                    "\"humedad\":\"30\"," +
-                    "\"grupo\":\"201113844\"," +
-                    "\"infoAdd\":\"-\"}";
-            String jsonPost2 = "{\"codigo\":\".\"," +
-                    "\"tiempo\":\""+hora+"\"," +
-                    "\"lugar\":\""+salon+"\"," +
-                    "\"ip\":\""+ip+"\"," +
-                    "\"ipaccesspoint\":\""+ipAP+"\"," +
-                    "\"ruido\":\".\"," +
-                    "\"luz\":\".\"," +
-                    "\"musica\":\".\"," +
-                    "\"temperatura\":\".\"," +
-                    "\"humedad\":\".\"," +
-                    "\"grupo\":\""+macAP+"\"," +
-                    "\"infoAdd\":\""+netmask+"\"}";
-            System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
-            System.out.println(jsonPost1);
-            System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
-            System.out.println(jsonPost2);
-            p.setEntity(new StringEntity(jsonPost2));
-            HttpResponse r = c.execute(p);
-
-            BufferedReader rd = new BufferedReader(new InputStreamReader(r.getEntity().getContent()));
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            // TOAST
-
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "Conexion exitosa", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            // TOAST
-
-        }
-        catch(ParseException e) {
-            System.out.println(e);
-        }
-        catch(IOException e) {
-            System.out.println(e);
-
-            // TOAST
-
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "ERROR de conexion", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            // TOAST
-        }
-    }
-
-
 }
+
+//CODIGO PARA IMPRIMIR INFO WIFI
+/*
+        System.out.println("- - - - - IP - - - - -");
+        System.out.println(ipAddress);
+        System.out.println("- - - - - MAC - - - - -");
+        System.out.println(mac);
+        System.out.println("- - - - - ID de Net - - - - -");
+        System.out.println(netIdString);
+        System.out.println("- - - - - dns1 - - - - -");
+        System.out.println( intToIp(dns1));
+        System.out.println("- - - - - dns2 - - - - -");
+        System.out.println( intToIp(dns2));
+        System.out.println("- - - - - gateway - - - - -");
+        System.out.println( intToIp(gateway));
+        System.out.println("- - - - - ipdhcp - - - - -");
+        System.out.println( intToIp(ipdhcp));
+        System.out.println("- - - - - leaseduration - - - - -");
+        System.out.println(leaseduration);
+        System.out.println("- - - - - netmask - - - - -");
+        System.out.println( intToIp(netmask));
+        System.out.println("- - - - - servaddress - - - - -");
+        System.out.println(intToIp(servaddress));*/
