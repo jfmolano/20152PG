@@ -39,12 +39,17 @@ public class MainActivity extends Activity {
     //Boton de comunicacion POST
     private Button btnPOST;
     private EditText nombreSalon;
+    //GPS
     private LocationManager locationManager;
+    //WIFI
     private WifiManager wifiMgr;
     private WifiInfo wifiInfo;
     private DhcpInfo dhcpInfo;
+    //RUIDO
     private MediaRecorder mRecorder = null;
-
+    //LUZ
+    DataCollection mDataCollection = null;
+    private float luz;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +66,9 @@ public class MainActivity extends Activity {
         //Start audio
         //start();
 
+        //Luz
+        mDataCollection = new DataCollection(this);
+
         //Listener
         addListenerOnButton();
     }
@@ -68,6 +76,14 @@ public class MainActivity extends Activity {
     public void medicionTest()
     {
         // Metodo de prueba
+        luz = mDataCollection.darLuzActual();
+        // TOAST=====
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Nivel de luz: "+luz, Toast.LENGTH_LONG).show();
+            }
+        });
+        // TOAST=====
     }
 
     public void medicion()
@@ -307,9 +323,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        medicion();
+                        //medicion();
                         //Metodo de prueba
-                        //medicionTest();
+                        medicionTest();
                     }
                 }).start();
 
@@ -319,6 +335,19 @@ public class MainActivity extends Activity {
 
     }
 
+    //En resumen
+    @Override
+    protected void onResume(){
+        super.onResume();
+        mDataCollection.register();
+    }
+
+    //En pausa
+    @Override
+    protected void onPause(){
+        super.onPause();
+        mDataCollection.unregister();
+    }
 }
 
 //CODIGO PARA IMPRIMIR INFO WIFI
