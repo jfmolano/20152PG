@@ -41,7 +41,6 @@ public class MainActivity extends Activity {
     private WifiInfo wifiInfo;
     private DhcpInfo dhcpInfo;
     private MediaRecorder mRecorder = null;
-    private double amplitud;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,22 +64,20 @@ public class MainActivity extends Activity {
 
     public void medicionTest()
     {
-        while(true)
-        {
-            amplitud = darRuido();
-            // TOAST=====
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "Ruido promedio: "+amplitud, Toast.LENGTH_LONG).show();
-                }
-            });
-            // TOAST=====
-        }
+        // Metodo de prueba
     }
 
     public void medicion()
     {
+        // TOAST=====
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+
+                Toast.makeText(getApplicationContext(), "Inicia medicion", Toast.LENGTH_LONG).show();
+            }
+        });
+        // TOAST=====
+
         //Texto de entrada para prueba tomado de campo de texto
         nombreSalon = (EditText)findViewById(R.id.nombreSalon);
         String salon = nombreSalon.getText().toString();
@@ -93,7 +90,9 @@ public class MainActivity extends Activity {
 
         //RUIDO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        //TODO RUIDOMETRO
+        double ruido = darRuido();
+        double roundOff = Math.round(ruido * 100.0) / 100.0;
+        String ruidoStr = ""+roundOff;
 
         //APPS ABIERTAS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -159,7 +158,7 @@ public class MainActivity extends Activity {
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora);
+        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora,ruidoStr);
     }
 
     //Funcion para pasar numeros raros a direcciones IP STRINGs
@@ -167,7 +166,7 @@ public class MainActivity extends Activity {
         return Formatter.formatIpAddress(IpAddress);
     }
 
-    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora) {
+    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString) {
         try {
             String urlPost = "http://157.253.195.165:5000/api/marcas";
             HttpClient c = new DefaultHttpClient();
@@ -191,7 +190,7 @@ public class MainActivity extends Activity {
                     "\"lugar\":\""+salon+"\"," +
                     "\"ip\":\""+ip+"\"," +
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
-                    "\"ruido\":\".\"," +
+                    "\"ruido\":\""+ruidoString+"\"," +
                     "\"luz\":\".\"," +
                     "\"musica\":\".\"," +
                     "\"temperatura\":\".\"," +
@@ -199,10 +198,10 @@ public class MainActivity extends Activity {
                     "\"grupo\":\""+macAP+"\"," +
                     "\"infoAdd\":\""+netmask+"\"}";
             //IMPRIMIR PETICIONES REST
-            /*System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
-            System.out.println(jsonPost1);
-            System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
-            System.out.println(jsonPost);*/
+            //System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
+            //System.out.println(jsonPost1);
+            //System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
+            //System.out.println(jsonPost);
             p.setEntity(new StringEntity(jsonPost));
             HttpResponse r = c.execute(p);
 
@@ -272,29 +271,7 @@ public class MainActivity extends Activity {
 
     }
 
-    //Activar boton de medicion
-    public void addListenerOnButton() {
-        btnPOST = (Button) findViewById(R.id.btnDisplay);
-
-        btnPOST.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                new Thread(new Runnable() {
-                    public void run() {
-                        //medicion();
-                        //Metodo de prueba
-                        medicionTest();
-                    }
-                }).start();
-
-            }
-
-        });
-
-    }
-
+    //Metodo para dar ruido promedio
     public double darRuido()
     {
         try {
@@ -312,6 +289,29 @@ public class MainActivity extends Activity {
         {
             return -1;
         }
+    }
+
+    //Activar boton de medicion
+    public void addListenerOnButton() {
+        btnPOST = (Button) findViewById(R.id.btnDisplay);
+
+        btnPOST.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        medicion();
+                        //Metodo de prueba
+                        //medicionTest();
+                    }
+                }).start();
+
+            }
+
+        });
+
     }
 
 }
