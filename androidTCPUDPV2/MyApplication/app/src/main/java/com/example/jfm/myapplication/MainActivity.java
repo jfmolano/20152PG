@@ -65,29 +65,17 @@ public class MainActivity extends Activity {
 
     public void medicionTest()
     {
-        try {
-            amplitud = getAmplitude();
+        while(true)
+        {
+            amplitud = darRuido();
             // TOAST=====
             MainActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
 
-                    Toast.makeText(getApplicationContext(), "Ruido 1: " + amplitud, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Ruido promedio: "+amplitud, Toast.LENGTH_LONG).show();
                 }
             });
             // TOAST=====
-            while(true){
-            Thread.sleep(5000);
-            amplitud = getAmplitude();
-            // TOAST=====
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "Ruido 2: "+amplitud, Toast.LENGTH_LONG).show();
-                }
-            });}
-            // TOAST=====
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -305,6 +293,25 @@ public class MainActivity extends Activity {
 
         });
 
+    }
+
+    public double darRuido()
+    {
+        try {
+            double ruido = 0;
+            double ampMax;
+            ampMax = getAmplitude();
+            for (int i = 0; i < 8; i++) {
+                Thread.sleep(2000);
+                ampMax = getAmplitude();
+                ruido = (ruido*i+ampMax)/(i+1);
+            }
+            return ruido;
+        }
+        catch(Exception e)
+        {
+            return -1;
+        }
     }
 
 }
