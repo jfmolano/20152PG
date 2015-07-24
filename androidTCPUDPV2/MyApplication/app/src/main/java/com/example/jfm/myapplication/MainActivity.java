@@ -12,6 +12,7 @@ import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -26,6 +27,8 @@ import android.content.Context;
 import android.location.LocationManager;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -75,6 +78,7 @@ public class MainActivity extends Activity {
     private String enReproduccion;
     private boolean listoWifiScan;
     private WifiManager mWifiManager;
+    private int j;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,10 +172,11 @@ public class MainActivity extends Activity {
     public void medicionTest()
     {
         // Metodo de prueba
-        ScanResult scarR = darMasPoderoso();
-        System.out.println("SSID: "+scarR.SSID);
-        System.out.println("BSSID: " + scarR.BSSID);
-        System.out.println("Nivel: "+scarR.level);
+        try {
+            escribirSDSalonMAC();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // TOAST=====
         /*
         MainActivity.this.runOnUiThread(new Runnable() {
@@ -259,12 +264,7 @@ public class MainActivity extends Activity {
         int netmask = dhcpInfo.netmask;
         int servaddress = dhcpInfo.serverAddress;
 
-        ScanResult scRes = darMasPoderoso();
-        String scanRes = "No SENECA";
-        if(scRes!=null)
-        {
-            scanRes = scRes.BSSID;
-        }
+        String scanRes = darBSSIDMasPoderoso();
 
         //GPS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -302,6 +302,17 @@ public class MainActivity extends Activity {
     //Funcion para pasar numeros raros a direcciones IP STRINGs
     public String intToIp(int IpAddress) {
         return Formatter.formatIpAddress(IpAddress);
+    }
+
+    String darBSSIDMasPoderoso()
+    {
+        ScanResult scRes = darMasPoderoso();
+        String scanRes = "No SENECA";
+        if(scRes!=null)
+        {
+            scanRes = scRes.BSSID;
+        }
+        return scanRes;
     }
 
     public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
@@ -455,9 +466,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        medicion();
+                        //medicion();
                         //Metodo de prueba
-                        //medicionTest();
+                        medicionTest();
                     }
                 }).start();
 
@@ -480,6 +491,69 @@ public class MainActivity extends Activity {
         super.onPause();
         mDataCollection.unregister();
     }
+
+    public void escribirSDSalonMAC() throws IOException {
+        File folder = new File("/storage/extSdCard/TesisSalones");
+        boolean var = false;
+        if (!folder.exists())
+            var = folder.mkdir();
+
+        System.out.println("" + var);
+
+        final String filename = folder.toString() + "/" + "Test.csv";
+
+        // show waiting screen
+        CharSequence contentTitle = getString(R.string.app_name);
+
+        FileWriter fw = new FileWriter(filename);
+
+        fw.append("Salon");
+        fw.append(',');
+
+        fw.append("MAC");
+        fw.append(',');
+
+        fw.append('\n');
+
+        String salon = "";
+        String mac = "";
+        j = 0;
+        while(!salon.equals("FIN")) {
+            nombreSalon = (EditText)findViewById(R.id.nombreSalon);
+            salon = nombreSalon.getText().toString();
+            System.out.println(salon);
+            fw.append(salon);
+            fw.append(',');
+
+            fw.append(darBSSIDMasPoderoso());
+            fw.append(',');
+
+            fw.append('\n');
+            j++;
+            // TOAST=====
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(), "Medicion numero: " + j, Toast.LENGTH_LONG).show();
+                }
+            });
+            // TOAST=====
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        fw.close();
+        // TOAST=====
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
+
+                Toast.makeText(getApplicationContext(), "FIN" + j, Toast.LENGTH_LONG).show();
+            }
+        });
+        // TOAST=====
+     }
 }
 
 //CODIGO PARA IMPRIMIR INFO WIFI

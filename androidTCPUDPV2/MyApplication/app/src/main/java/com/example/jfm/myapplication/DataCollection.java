@@ -38,12 +38,10 @@ public class DataCollection implements SensorEventListener {
     }
 
     public void register(){
-        System.out.print("Registro del sensor de luz");
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public void unregister(){
-        System.out.print("Desregistro del sensor de luz");
         mSensorManager.unregisterListener(this);
     }
 
