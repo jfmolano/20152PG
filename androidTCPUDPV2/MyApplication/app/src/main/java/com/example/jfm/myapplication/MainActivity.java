@@ -113,13 +113,13 @@ public class MainActivity extends Activity {
         // Metodo de prueba
 
         // TOAST=====
-
+        /*
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(getApplicationContext(), "Cancion: "+pista, Toast.LENGTH_LONG).show();
             }
         });
-
+        */
         // TOAST=====
     }
 
@@ -249,7 +249,7 @@ public class MainActivity extends Activity {
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
                     "\"ruido\":\""+ruidoString+"\"," +
                     "\"luz\":\""+luzString+"\"," +
-                    "\"musica\":\".\"," +
+                    "\"musica\":\""+pista+";"+artista+"\"," +
                     "\"temperatura\":\".\"," +
                     "\"humedad\":\".\"," +
                     "\"grupo\":\""+macAP+"\"," +
@@ -374,9 +374,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        //medicion();
+                        medicion();
                         //Metodo de prueba
-                        medicionTest();
+                        //medicionTest();
                     }
                 }).start();
 
