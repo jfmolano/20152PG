@@ -170,7 +170,7 @@ public class MainActivity extends Activity {
         // Metodo de prueba
         ScanResult scarR = darMasPoderoso();
         System.out.println("SSID: "+scarR.SSID);
-        System.out.println("BSSID: "+scarR.BSSID);
+        System.out.println("BSSID: " + scarR.BSSID);
         System.out.println("Nivel: "+scarR.level);
         // TOAST=====
         /*
@@ -259,6 +259,13 @@ public class MainActivity extends Activity {
         int netmask = dhcpInfo.netmask;
         int servaddress = dhcpInfo.serverAddress;
 
+        ScanResult scRes = darMasPoderoso();
+        String scanRes = "No SENECA";
+        if(scRes!=null)
+        {
+            scanRes = scRes.BSSID;
+        }
+
         //GPS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -289,7 +296,7 @@ public class MainActivity extends Activity {
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),macAP,hora,ruidoStr,luzStr);
+        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),scanRes,hora,ruidoStr,luzStr);
     }
 
     //Funcion para pasar numeros raros a direcciones IP STRINGs
@@ -448,9 +455,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        //medicion();
+                        medicion();
                         //Metodo de prueba
-                        medicionTest();
+                        //medicionTest();
                     }
                 }).start();
 
