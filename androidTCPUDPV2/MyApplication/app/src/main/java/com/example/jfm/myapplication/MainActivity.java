@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
@@ -53,6 +54,8 @@ public class MainActivity extends Activity {
     private WifiManager wifiMgr;
     private WifiInfo wifiInfo;
     private DhcpInfo dhcpInfo;
+    //WIFI2
+    private List<ScanResult> scanResults;
     //RUIDO
     private MediaRecorder mRecorder = null;
     //LUZ
@@ -70,6 +73,8 @@ public class MainActivity extends Activity {
     private String pista;
     private String apps;
     private String enReproduccion;
+    private boolean listoWifiScan;
+    private WifiManager mWifiManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,14 +117,61 @@ public class MainActivity extends Activity {
         iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
         iF.addAction("com.andrew.apollo.metachanged");
         registerReceiver(mReceiver, iF);
+
+        //Redes 2
+        iF.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        registerReceiver(new BroadcastReceiver() {
+
+            @Override
+
+            public void onReceive(Context context, Intent intent) {
+                mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                mWifiManager.getScanResults();
+                scanResults = mWifiManager.getScanResults();
+                listoWifiScan = true;
+            }
+        }
+                , iF);
+        listoWifiScan = false;
+
         //Listener
         addListenerOnButton();
+    }
+
+    public ScanResult darMasPoderoso(){
+        ScanResult resp = null;
+        mWifiManager.startScan();
+        while(!listoWifiScan){}
+        listoWifiScan = false;
+        Iterator<ScanResult> it = scanResults.iterator();
+        int maximo = Integer.MIN_VALUE;
+        while(it.hasNext())
+        {
+            ScanResult sR = it.next();
+            if(sR.SSID.equals("SENECA"))
+            {
+                int potencia = sR.level;
+                if(potencia > maximo)
+                {
+                    maximo = potencia;
+                    resp = sR;
+                }
+            }/*
+            System.out.println("SSID: "+sR.SSID);
+            System.out.println("BSSID: "+sR.BSSID);
+            System.out.println("Nivel: "+sR.level);*/
+        }
+
+        return resp;
     }
 
     public void medicionTest()
     {
         // Metodo de prueba
-
+        ScanResult scarR = darMasPoderoso();
+        System.out.println("SSID: "+scarR.SSID);
+        System.out.println("BSSID: "+scarR.BSSID);
+        System.out.println("Nivel: "+scarR.level);
         // TOAST=====
         /*
         MainActivity.this.runOnUiThread(new Runnable() {
@@ -396,9 +448,9 @@ public class MainActivity extends Activity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        medicion();
+                        //medicion();
                         //Metodo de prueba
-                        //medicionTest();
+                        medicionTest();
                     }
                 }).start();
 
