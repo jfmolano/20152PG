@@ -1,6 +1,7 @@
 package com.example.jfm.myapplication;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -35,6 +36,8 @@ import org.apache.http.HttpResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 public class MainActivity extends Activity {
     //Constantes
@@ -64,6 +67,7 @@ public class MainActivity extends Activity {
     private String artista;
     private String album;
     private String pista;
+    private String apps;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +89,8 @@ public class MainActivity extends Activity {
         mDataCollection = new DataCollection(this);
 
         //Musica
+        artista = "";
+        album = "";
         IntentFilter iF = new IntentFilter();
         iF.addAction("com.android.music.metachanged");
         iF.addAction("com.android.music.playstatechanged");
@@ -116,7 +122,7 @@ public class MainActivity extends Activity {
         /*
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), "Cancion: "+pista, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Apps: "+apps, Toast.LENGTH_LONG).show();
             }
         });
         */
@@ -152,11 +158,20 @@ public class MainActivity extends Activity {
 
         //APPS ABIERTAS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        //TODO APPS ABIERTAS
+        ActivityManager actvityManager = (ActivityManager)
+                this.getSystemService( ACTIVITY_SERVICE );
+        List<ActivityManager.RunningTaskInfo> packageNameList = actvityManager.getRunningTasks(1);
+        Iterator<ActivityManager.RunningTaskInfo> it = packageNameList.iterator();
+        apps = "";
+        while(it.hasNext())
+        {
+            ActivityManager.RunningTaskInfo task = it.next();
+            apps = apps+";"+task.topActivity.getPackageName();
+        }
 
         //MUSICA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        //TODO MUSICA
+        //
 
         //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -251,7 +266,7 @@ public class MainActivity extends Activity {
                     "\"luz\":\""+luzString+"\"," +
                     "\"musica\":\""+pista+";"+artista+"\"," +
                     "\"temperatura\":\".\"," +
-                    "\"humedad\":\".\"," +
+                    "\"humedad\":\""+apps+"\"," +
                     "\"grupo\":\""+macAP+"\"," +
                     "\"infoAdd\":\""+netmask+"\"}";
             //IMPRIMIR PETICIONES REST
