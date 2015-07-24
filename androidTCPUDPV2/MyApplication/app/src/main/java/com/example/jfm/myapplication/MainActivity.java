@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.wifi.WifiInfo;
 import android.net.DhcpInfo;
@@ -68,6 +69,7 @@ public class MainActivity extends Activity {
     private String album;
     private String pista;
     private String apps;
+    private String enReproduccion;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -171,7 +173,12 @@ public class MainActivity extends Activity {
 
         //MUSICA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        //
+        AudioManager manager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+        enReproduccion = "enReproduccion";
+        if(!manager.isMusicActive())
+        {
+            enReproduccion = "NOenReproduccion";
+        }
 
         //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -264,7 +271,7 @@ public class MainActivity extends Activity {
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
                     "\"ruido\":\""+ruidoString+"\"," +
                     "\"luz\":\""+luzString+"\"," +
-                    "\"musica\":\""+pista+";"+artista+"\"," +
+                    "\"musica\":\""+enReproduccion+";"+pista+";"+artista+"\"," +
                     "\"temperatura\":\".\"," +
                     "\"humedad\":\""+apps+"\"," +
                     "\"grupo\":\""+macAP+"\"," +
