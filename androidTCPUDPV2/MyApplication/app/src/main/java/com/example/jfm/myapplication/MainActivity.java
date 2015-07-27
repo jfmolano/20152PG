@@ -90,8 +90,8 @@ public class MainActivity extends Activity {
         //Interfaz
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent sender = PendingIntent.getBroadcast(this, 0,
+        Intent intent = new Intent(this, Medidor.class);
+        PendingIntent sender = PendingIntent.getService(this, 0,
                 intent, 0);
 
         // We want the alarm to go off 30 seconds from now.

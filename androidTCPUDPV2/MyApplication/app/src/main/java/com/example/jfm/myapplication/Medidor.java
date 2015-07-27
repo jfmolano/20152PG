@@ -83,6 +83,22 @@ public class Medidor extends Service {
     private int j;
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        System.out.println(" - - - - - - - - - - - start del servicio - - - - - - - - - - -");
+        new Thread(new Runnable() {
+            public void run() {
+                medicion();
+                //Metodo de prueba
+                //medicionTest();
+            }
+        }).start();
+        Log.i("LocalService", "Received start id " + startId + ": " + intent);
+        // We want this service to continue running until it is explicitly
+        // stopped, so return sticky.
+        return START_STICKY;
+    }
+
+    @Override
     public void onCreate() {
         System.out.println(" - - - - - - - - - - - Inicia el servicio - - - - - - - - - - -");
 
@@ -136,14 +152,6 @@ public class Medidor extends Service {
         }
                 , iF);
         listoWifiScan = false;
-
-        new Thread(new Runnable() {
-            public void run() {
-                medicion();
-                //Metodo de prueba
-                //medicionTest();
-            }
-        }).start();
     }
 
     @Override
