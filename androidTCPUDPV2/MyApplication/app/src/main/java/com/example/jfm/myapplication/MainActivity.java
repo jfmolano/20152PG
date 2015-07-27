@@ -2,6 +2,8 @@ package com.example.jfm.myapplication;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +16,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
@@ -87,373 +90,23 @@ public class MainActivity extends Activity {
         //Interfaz
         setContentView(R.layout.activity_main);
 
-        //Informacion WIFI
-        wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent sender = PendingIntent.getBroadcast(this, 0,
+                intent, 0);
 
-        //Informacion GPS
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // We want the alarm to go off 30 seconds from now.
+        long firstTime = SystemClock.elapsedRealtime();
+        firstTime += 15 * 1000;
 
-        //Start audio
-        //start();
-
-        //Luz
-        mDataCollection = new DataCollection(this);
-
-        //Musica
-        artista = "";
-        album = "";
-        IntentFilter iF = new IntentFilter();
-        iF.addAction("com.android.music.metachanged");
-        iF.addAction("com.android.music.playstatechanged");
-        iF.addAction("com.android.music.playbackcomplete");
-        iF.addAction("com.android.music.queuechanged");
-        iF.addAction("com.android.music.metachanged");
-        //Nuevas lineas
-        iF.addAction("com.htc.music.metachanged");
-        iF.addAction("fm.last.android.metachanged");
-        iF.addAction("com.sec.android.app.music.metachanged");
-        iF.addAction("com.nullsoft.winamp.metachanged");
-        iF.addAction("com.amazon.mp3.metachanged");
-        iF.addAction("com.miui.player.metachanged");
-        iF.addAction("com.real.IMP.metachanged");
-        iF.addAction("com.sonyericsson.music.metachanged");
-        iF.addAction("com.rdio.android.metachanged");
-        iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
-        iF.addAction("com.andrew.apollo.metachanged");
-        registerReceiver(mReceiver, iF);
-
-        //Redes 2
-        iF.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        registerReceiver(new BroadcastReceiver() {
-
-            @Override
-
-            public void onReceive(Context context, Intent intent) {
-                mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                mWifiManager.getScanResults();
-                scanResults = mWifiManager.getScanResults();
-                listoWifiScan = true;
-            }
-        }
-                , iF);
-        listoWifiScan = false;
+        // Schedule the alarm!
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime,
+                15 * 1000, sender);
+        Toast.makeText(this, "Alarm set", Toast.LENGTH_LONG).show();
 
         //Listener
         addListenerOnButton();
     }
-
-    public ScanResult darMasPoderoso(){
-        ScanResult resp = null;
-        mWifiManager.startScan();
-        while(!listoWifiScan){}
-        listoWifiScan = false;
-        Iterator<ScanResult> it = scanResults.iterator();
-        int maximo = Integer.MIN_VALUE;
-        while(it.hasNext())
-        {
-            ScanResult sR = it.next();
-            if(sR.SSID.equals("SENECA"))
-            {
-                int potencia = sR.level;
-                if(potencia > maximo)
-                {
-                    maximo = potencia;
-                    resp = sR;
-                }
-            }/*
-            System.out.println("SSID: "+sR.SSID);
-            System.out.println("BSSID: "+sR.BSSID);
-            System.out.println("Nivel: "+sR.level);*/
-        }
-
-        return resp;
-    }
-
-    public void medicionTest()
-    {
-        // Metodo de prueba
-        try {
-            escribirSDSalonMAC();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // TOAST=====
-        /*
-        MainActivity.this.runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Apps: "+apps, Toast.LENGTH_LONG).show();
-            }
-        });
-        */
-        // TOAST=====
-    }
-
-    public void medicion()
-    {
-        // TOAST=====
-        MainActivity.this.runOnUiThread(new Runnable() {
-            public void run() {
-
-                Toast.makeText(getApplicationContext(), "Inicia medicion", Toast.LENGTH_LONG).show();
-            }
-        });
-        // TOAST=====
-
-        //Texto de entrada para prueba tomado de campo de texto
-        nombreSalon = (EditText)findViewById(R.id.nombreSalon);
-        String salon = nombreSalon.getText().toString();
-
-        //HORA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss z");
-        String hora = sdf.format(cal.getTime());
-
-        //RUIDO - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        double ruido = darRuido();
-        double roundOff = Math.round(ruido * 100.0) / 100.0;
-        String ruidoStr = ""+roundOff;
-
-        //APPS ABIERTAS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        ActivityManager actvityManager = (ActivityManager)
-                this.getSystemService( ACTIVITY_SERVICE );
-        List<ActivityManager.RunningTaskInfo> packageNameList = actvityManager.getRunningTasks(1);
-        Iterator<ActivityManager.RunningTaskInfo> it = packageNameList.iterator();
-        apps = "";
-        while(it.hasNext())
-        {
-            ActivityManager.RunningTaskInfo task = it.next();
-            apps = apps+";"+task.topActivity.getPackageName();
-        }
-
-        //MUSICA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        AudioManager manager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
-        enReproduccion = "enReproduccion";
-        if(!manager.isMusicActive())
-        {
-            enReproduccion = "NOenReproduccion";
-        }
-
-        //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        float luz = mDataCollection.darLuzActual();
-        String luzStr = luz + "";
-
-        //REDES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        //Manejadores
-        wifiInfo = wifiMgr.getConnectionInfo();
-        dhcpInfo = wifiMgr.getDhcpInfo();
-        //WIFI INFO
-        int ip = wifiInfo.getIpAddress();
-        String mac = wifiInfo.getMacAddress();
-        int netId = wifiInfo.getNetworkId();
-        String macAP = wifiInfo.getBSSID();
-        String ipAddress = Formatter.formatIpAddress(ip);
-        String netIdString = Formatter.formatIpAddress(netId);
-        //DHCP INFO
-        int dns1 = dhcpInfo.dns1;
-        int dns2 = dhcpInfo.dns2;
-        int contents = dhcpInfo.describeContents();
-        int gateway = dhcpInfo.gateway;
-        int ipdhcp = dhcpInfo.ipAddress;
-        int leaseduration = dhcpInfo.leaseDuration;
-        int netmask = dhcpInfo.netmask;
-        int servaddress = dhcpInfo.serverAddress;
-
-        String scanRes = darBSSIDMasPoderoso();
-
-        //GPS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        System.out.println("GPS");
-        if(location!=null) {
-            if (location.hasAltitude()) {
-                double altitud = location.getAltitude();
-                System.out.println("altitud");
-                System.out.println(altitud);
-            }
-            if (location.hasSpeed()) {
-                double velocidad = location.getSpeed();
-                System.out.println("velocidad");
-                System.out.println(velocidad);
-            }
-            if (true) {
-                double longitud = location.getLongitude();
-                System.out.println("longitud");
-                System.out.println(longitud);
-            }
-            if (true) {
-                double latitud = location.getLatitude();
-                System.out.println("latitud");
-                System.out.println(latitud);
-            }
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),scanRes,hora,ruidoStr,luzStr);
-    }
-
-    //Funcion para pasar numeros raros a direcciones IP STRINGs
-    public String intToIp(int IpAddress) {
-        return Formatter.formatIpAddress(IpAddress);
-    }
-
-    String darBSSIDMasPoderoso()
-    {
-        ScanResult scRes = darMasPoderoso();
-        String scanRes = "No SENECA";
-        if(scRes!=null)
-        {
-            scanRes = scRes.BSSID;
-        }
-        return scanRes;
-    }
-
-    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
-        try {
-            String urlPost = "http://157.253.195.165:5000/api/marcas";
-            HttpClient c = new DefaultHttpClient();
-            HttpPost p = new HttpPost(urlPost);
-            p.addHeader("content-type", "application/json");
-            //JSON de PRUEBA
-            /*String jsonPost1 = "{\"codigo\":\"201116404\"," +
-                    "\"tiempo\":\"11:04:00 15/07/2015\"," +
-                    "\"lugar\":\"ML009\"," +
-                    "\"ip\":\"157.253.0.3\"," +
-                    "\"ipaccesspoint\":\"157.253.0.1\"," +
-                    "\"ruido\":\"1\"," +
-                    "\"luz\":\"2\"," +
-                    "\"musica\":\"JBalvin\"," +
-                    "\"temperatura\":\"20\"," +
-                    "\"humedad\":\"30\"," +
-                    "\"grupo\":\"201113844\"," +
-                    "\"infoAdd\":\"-\"}";*/
-            String jsonPost = "{\"codigo\":\".\"," +
-                    "\"tiempo\":\""+hora+"\"," +
-                    "\"lugar\":\""+salon+"\"," +
-                    "\"ip\":\""+ip+"\"," +
-                    "\"ipaccesspoint\":\""+ipAP+"\"," +
-                    "\"ruido\":\""+ruidoString+"\"," +
-                    "\"luz\":\""+luzString+"\"," +
-                    "\"musica\":\""+enReproduccion+";"+pista+";"+artista+"\"," +
-                    "\"temperatura\":\".\"," +
-                    "\"humedad\":\""+apps+"\"," +
-                    "\"grupo\":\""+macAP+"\"," +
-                    "\"infoAdd\":\""+netmask+"\"}";
-            //IMPRIMIR PETICIONES REST
-            //System.out.println("- - - - - - - JSON POST1 - - - - - - - -");
-            //System.out.println(jsonPost1);
-            //System.out.println("- - - - - - - JSON POST2 - - - - - - - -");
-            //System.out.println(jsonPost);
-            p.setEntity(new StringEntity(jsonPost));
-            HttpResponse r = c.execute(p);
-
-            BufferedReader rd = new BufferedReader(new InputStreamReader(r.getEntity().getContent()));
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            // TOAST=====
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "Conexion exitosa", Toast.LENGTH_LONG).show();
-                }
-            });
-            // TOAST=====
-
-        }
-        catch(ParseException e) {
-            System.out.println(e);
-        }
-        catch(IOException e) {
-            System.out.println(e);
-
-            // TOAST=====
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "ERROR de conexion", Toast.LENGTH_LONG).show();
-                }
-            });
-            // TOAST=====
-        }
-    }
-
-    //FUNCIONES RUIDOMETRO
-
-    public void start() {
-        try{
-            if (mRecorder == null) {
-                mRecorder = new MediaRecorder();
-                mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                mRecorder.setOutputFile("/dev/null");
-                mRecorder.prepare();
-                mRecorder.start();
-            }
-        }catch(Exception e){}
-
-    }
-
-    public void stop() {
-        if (mRecorder != null) {
-            mRecorder.stop();
-            mRecorder.release();
-            mRecorder = null;
-        }
-    }
-
-    public double getAmplitude() {
-        if (mRecorder != null)
-            return  mRecorder.getMaxAmplitude();
-        else
-            return 0;
-
-    }
-
-    //Metodo para dar ruido promedio
-    public double darRuido()
-    {
-        try {
-            start();
-            double ruido = 0;
-            double ampMax;
-            ampMax = getAmplitude();
-            for (int i = 0; i < ITERACIONES_RUIDO; i++) {
-                Thread.sleep(T_INTERVALO_RUIDO);
-                ampMax = getAmplitude();
-                ruido = (ruido*i+ampMax)/(i+1);
-            }
-            stop();
-            return ruido;
-        } catch(Exception e)
-        {
-            stop();
-            return -1;
-        }
-    }
-
-    //onReceive musica
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent)
-    {
-        String action = intent.getAction();
-        String cmd = intent.getStringExtra("command");
-        artista = intent.getStringExtra("artist");
-        album = intent.getStringExtra("album");
-        pista = intent.getStringExtra("track");
-    }
-};
 
     //Activar boton de medicion
     public void addListenerOnButton() {
@@ -464,96 +117,16 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                new Thread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
-                        //medicion();
-                        //Metodo de prueba
-                        medicionTest();
+                        Toast.makeText(getApplicationContext(), "Apps: " + apps, Toast.LENGTH_LONG).show();
                     }
-                }).start();
-
+                });
             }
 
         });
 
     }
-
-    //En resumen
-    @Override
-    protected void onResume(){
-        super.onResume();
-        mDataCollection.register();
-    }
-
-    //En pausa
-    @Override
-    protected void onPause(){
-        super.onPause();
-        mDataCollection.unregister();
-    }
-
-    public void escribirSDSalonMAC() throws IOException {
-        File folder = new File("/storage/extSdCard/TesisSalones");
-        boolean var = false;
-        if (!folder.exists())
-            var = folder.mkdir();
-
-        System.out.println("" + var);
-
-        final String filename = folder.toString() + "/" + "Test.csv";
-
-        // show waiting screen
-        CharSequence contentTitle = getString(R.string.app_name);
-
-        FileWriter fw = new FileWriter(filename);
-
-        fw.append("Salon");
-        fw.append(',');
-
-        fw.append("MAC");
-        fw.append(',');
-
-        fw.append('\n');
-
-        String salon = "";
-        String mac = "";
-        j = 0;
-        while(!salon.equals("FIN")) {
-            nombreSalon = (EditText)findViewById(R.id.nombreSalon);
-            salon = nombreSalon.getText().toString();
-            System.out.println(salon);
-            fw.append(salon);
-            fw.append(',');
-
-            fw.append(darBSSIDMasPoderoso());
-            fw.append(',');
-
-            fw.append('\n');
-            j++;
-            // TOAST=====
-            MainActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-
-                    Toast.makeText(getApplicationContext(), "Medicion numero: " + j, Toast.LENGTH_LONG).show();
-                }
-            });
-            // TOAST=====
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        fw.close();
-        // TOAST=====
-        MainActivity.this.runOnUiThread(new Runnable() {
-            public void run() {
-
-                Toast.makeText(getApplicationContext(), "FIN" + j, Toast.LENGTH_LONG).show();
-            }
-        });
-        // TOAST=====
-     }
 }
 
 //CODIGO PARA IMPRIMIR INFO WIFI
