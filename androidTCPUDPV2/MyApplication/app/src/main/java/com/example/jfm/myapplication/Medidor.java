@@ -331,7 +331,7 @@ public class Medidor extends Service {
 
     public void makeHTTPPOSTRequest(String codigo,String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
         try {
-            String urlPost = "http://157.253.195.165:5000/api/marcas";
+            String urlPost = "http://157.253.195.165:80/api/marcas";
             HttpClient c = new DefaultHttpClient();
             HttpPost p = new HttpPost(urlPost);
             p.addHeader("content-type", "application/json");

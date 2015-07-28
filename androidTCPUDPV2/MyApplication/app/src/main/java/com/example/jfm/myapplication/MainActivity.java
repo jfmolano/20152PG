@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
                         // Schedule the alarm!
                         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
                         am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime,
-                                15 * 1000 * 60, sender);
+                                15 * 60 * 1000, sender);
                         Toast.makeText(getBaseContext(), "Medicion establecida", Toast.LENGTH_LONG).show();
                     }
                 });
