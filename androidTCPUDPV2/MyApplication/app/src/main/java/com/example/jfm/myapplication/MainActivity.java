@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.wifi.ScanResult;
@@ -54,7 +55,9 @@ public class MainActivity extends Activity {
     //Boton de comunicacion POST
     private Button btnPOST;
     private Button btnStart;
-    private EditText nombreSalon;
+    private Button btnActualizarCod;
+    private EditText codigoEntrada;
+    private TextView vistaCodigo;
     //GPS
     private LocationManager locationManager;
     //WIFI
@@ -84,12 +87,25 @@ public class MainActivity extends Activity {
     private WifiManager mWifiManager;
     private int j;
 
+    //Preferencias
+    private SharedPreferences sharedPref;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Preferencias
+        sharedPref = getApplicationContext().getSharedPreferences(
+                "com.jfm.appMT.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+
         //Interfaz
         setContentView(R.layout.activity_main);
+
+        //Codigo
+        codigoEntrada = (EditText) findViewById(R.id.codigoEdText);
+
+        //Codigo vista
+        vistaCodigo = (TextView) findViewById(R.id.textoCodigo);
 
         //Listener
         addListenerOnButton();
@@ -99,6 +115,7 @@ public class MainActivity extends Activity {
     public void addListenerOnButton() {
         btnPOST = (Button) findViewById(R.id.btnDisplay);
         btnStart = (Button) findViewById(R.id.btnStart);
+        btnActualizarCod = (Button) findViewById(R.id.btnActualizarCod);
         btnPOST.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -138,6 +155,31 @@ public class MainActivity extends Activity {
                         am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime,
                                 15 * 1000 * 60, sender);
                         Toast.makeText(getBaseContext(), "Medicion establecida", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+        });
+
+        btnActualizarCod.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        //
+                        String codigo = codigoEntrada.getText().toString();
+                        //
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("CodigoUni", codigo);
+                        editor.commit();
+                        //
+                        //
+                        String codStored = sharedPref.getString("CodigoUni", "No Codigo");
+                        //
+                        vistaCodigo.setText("Codigo: " + codStored);
+                        Toast.makeText(getBaseContext(), "Codigo actualizado", Toast.LENGTH_LONG).show();
                     }
                 });
             }

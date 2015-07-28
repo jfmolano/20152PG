@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.wifi.ScanResult;
@@ -298,10 +299,14 @@ public class Medidor extends Service {
             }
         }
 
+        //Codigo
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.jfm.appMT.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        String codigo = sharedPref.getString("CodigoUni","No codigo");
+
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        makeHTTPPOSTRequest(salon,ipAddress,intToIp(gateway),intToIp(netmask),scanRes,hora,ruidoStr,luzStr);
+        makeHTTPPOSTRequest(codigo,salon,ipAddress,intToIp(gateway),intToIp(netmask),scanRes,hora,ruidoStr,luzStr);
     }
 
     //Funcion para pasar numeros raros a direcciones IP STRINGs
@@ -320,7 +325,7 @@ public class Medidor extends Service {
         return scanRes;
     }
 
-    public void makeHTTPPOSTRequest(String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
+    public void makeHTTPPOSTRequest(String codigo,String salon, String ip,String ipAP, String netmask, String macAP, String hora, String ruidoString, String luzString) {
         try {
             String urlPost = "http://157.253.195.165:5000/api/marcas";
             HttpClient c = new DefaultHttpClient();
@@ -339,7 +344,7 @@ public class Medidor extends Service {
                     "\"humedad\":\"30\"," +
                     "\"grupo\":\"201113844\"," +
                     "\"infoAdd\":\"-\"}";*/
-            String jsonPost = "{\"codigo\":\".\"," +
+            String jsonPost = "{\"codigo\":\""+codigo+"\"," +
                     "\"tiempo\":\""+hora+"\"," +
                     "\"lugar\":\""+salon+"\"," +
                     "\"ip\":\""+ip+"\"," +

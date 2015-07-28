@@ -20,7 +20,20 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/textSonido" />
-    <EditText android:id="@+id/nombreSalon" android:layout_width="400px" android:layout_height="wrap_content"/>
+        android:id="@+id/textoCodigo"
+        android:text="Codigo: "
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:textIsSelectable="false" />
+
+    <EditText
+        android:id="@+id/codigoEdText"
+        android:layout_width="400px"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnActualizarCod"
+        android:layout_width="500px"
+        android:layout_height="wrap_content"
+        android:text="Actualizar codigo" />
 </LinearLayout>
