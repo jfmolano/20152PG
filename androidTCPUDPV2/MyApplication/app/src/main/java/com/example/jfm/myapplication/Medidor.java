@@ -237,10 +237,10 @@ public class Medidor extends Service {
         //MUSICA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         AudioManager manager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
-        enReproduccion = "enReproduccion";
+        enReproduccion = "PlaySI";
         if(!manager.isMusicActive())
         {
-            enReproduccion = "NOenReproduccion";
+            enReproduccion = "PlayNO";
         }
 
         //LUZ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -303,6 +303,10 @@ public class Medidor extends Service {
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.jfm.appMT.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
         String codigo = sharedPref.getString("CodigoUni","No codigo");
 
+        if(enReproduccion == null)
+        {
+            enReproduccion = "NO pista";
+        }
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - POST - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -351,8 +355,8 @@ public class Medidor extends Service {
                     "\"ipaccesspoint\":\""+ipAP+"\"," +
                     "\"ruido\":\""+ruidoString+"\"," +
                     "\"luz\":\""+luzString+"\"," +
-                    "\"musica\":\""+enReproduccion+";"+pista+";"+artista+"\"," +
-                    "\"temperatura\":\".\"," +
+                    "\"musica\":\""+pista+";"+artista+"\"," +
+                    "\"temperatura\":\""+enReproduccion+"\"," +
                     "\"humedad\":\""+apps+"\"," +
                     "\"grupo\":\""+macAP+"\"," +
                     "\"infoAdd\":\""+netmask+"\"}";
