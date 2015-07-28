@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
     private final static int T_INTERVALO_RUIDO = 1000;
     //Boton de comunicacion POST
     private Button btnPOST;
+    private Button btnStart;
     private EditText nombreSalon;
     //GPS
     private LocationManager locationManager;
@@ -90,20 +91,6 @@ public class MainActivity extends Activity {
         //Interfaz
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(this, Medidor.class);
-        PendingIntent sender = PendingIntent.getService(this, 0,
-                intent, 0);
-
-        // We want the alarm to go off 30 seconds from now.
-        long firstTime = SystemClock.elapsedRealtime();
-        firstTime += 15 * 1000;
-
-        // Schedule the alarm!
-        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime,
-                15 * 1000, sender);
-        Toast.makeText(this, "Alarm set", Toast.LENGTH_LONG).show();
-
         //Listener
         addListenerOnButton();
     }
@@ -111,7 +98,7 @@ public class MainActivity extends Activity {
     //Activar boton de medicion
     public void addListenerOnButton() {
         btnPOST = (Button) findViewById(R.id.btnDisplay);
-
+        btnStart = (Button) findViewById(R.id.btnStart);
         btnPOST.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -119,13 +106,43 @@ public class MainActivity extends Activity {
 
                 MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Apps: " + apps, Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getBaseContext(), Medidor.class);
+                        PendingIntent sender = PendingIntent.getService(getBaseContext(), 0,
+                                intent, 0);
+                        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                        am.cancel(sender);
+                        Toast.makeText(getBaseContext(), "Medicion detenida", Toast.LENGTH_LONG).show();
                     }
                 });
             }
 
         });
 
+        btnStart.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Intent intent = new Intent(getBaseContext(), Medidor.class);
+                        PendingIntent sender = PendingIntent.getService(getBaseContext(), 0,
+                                intent, 0);
+
+                        // We want the alarm to go off 30 seconds from now.
+                        long firstTime = SystemClock.elapsedRealtime();
+                        firstTime += 15 * 1000;
+
+                        // Schedule the alarm!
+                        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstTime,
+                                15 * 1000 * 60, sender);
+                        Toast.makeText(getBaseContext(), "Medicion establecida", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+        });
     }
 }
 

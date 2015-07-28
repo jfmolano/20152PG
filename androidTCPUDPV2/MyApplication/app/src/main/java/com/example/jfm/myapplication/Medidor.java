@@ -56,7 +56,6 @@ public class Medidor extends Service {
     //GPS
     private LocationManager locationManager;
     //WIFI
-    private WifiManager wifiMgr;
     private WifiInfo wifiInfo;
     private DhcpInfo dhcpInfo;
     //WIFI2
@@ -85,6 +84,7 @@ public class Medidor extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         System.out.println(" - - - - - - - - - - - start del servicio - - - - - - - - - - -");
+        Toast.makeText(getBaseContext(), "Alarm worked.", Toast.LENGTH_LONG).show();
         new Thread(new Runnable() {
             public void run() {
                 medicion();
@@ -101,10 +101,7 @@ public class Medidor extends Service {
     @Override
     public void onCreate() {
         System.out.println(" - - - - - - - - - - - Inicia el servicio - - - - - - - - - - -");
-
-        //Informacion WIFI
-        wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
-
+        mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         //Informacion GPS
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -144,7 +141,7 @@ public class Medidor extends Service {
             @Override
 
             public void onReceive(Context context, Intent intent) {
-                mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 mWifiManager.getScanResults();
                 scanResults = mWifiManager.getScanResults();
                 listoWifiScan = true;
@@ -253,8 +250,8 @@ public class Medidor extends Service {
         //REDES - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //Manejadores
-        wifiInfo = wifiMgr.getConnectionInfo();
-        dhcpInfo = wifiMgr.getDhcpInfo();
+        wifiInfo = mWifiManager.getConnectionInfo();
+        dhcpInfo = mWifiManager.getDhcpInfo();
         //WIFI INFO
         int ip = wifiInfo.getIpAddress();
         String mac = wifiInfo.getMacAddress();
@@ -371,9 +368,11 @@ public class Medidor extends Service {
         }
         catch(ParseException e) {
             System.out.println(e);
+            System.out.println(" - - - - - - - - - - - Error de conexion - - - - - - - - - - -");
         }
         catch(IOException e) {
             System.out.println(e);
+            System.out.println(" - - - - - - - - - - - Error de conexion - - - - - - - - - - -");
         }
     }
 

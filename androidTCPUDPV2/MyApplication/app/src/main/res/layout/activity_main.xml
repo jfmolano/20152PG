@@ -6,10 +6,16 @@
     android:weightSum="1">
 
     <Button
-        android:id="@+id/btnDisplay"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnStart"
+        android:layout_width="500px"
         android:layout_height="wrap_content"
-        android:text="Iniciar medición" />
+        android:text="Iniciar medicion" />
+
+    <Button
+        android:id="@+id/btnDisplay"
+        android:layout_width="500px"
+        android:layout_height="wrap_content"
+        android:text="Detener medicion" />
 
     <TextView
         android:layout_width="wrap_content"
